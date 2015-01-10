@@ -1,0 +1,299 @@
+/* general ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Josefin Slab Light";
+  src: url(Quicksand-Regular.otf) format("truetype"); 
+}
+
+body {
+  background-image: url(background.jpg);
+  background-size: 100%;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-family: Josefin Slab Light;
+  font-size: 2em;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+}
+
+/* title -------------------------------------------------------------------- */
+
+#title {
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-family: Josefin Slab Light;
+  font-size: 4em;
+  text-align: center;
+}
+
+/* content (general) -------------------------------------------------------- */
+
+#mainContainer {
+  width: 100%;
+  font-family: Josefin Slab Light;
+  text-align: center;
+}
+
+.horizontalGapSmall {
+  height: 10px;
+  width: 100%;
+}
+
+.horizontalGapLarge {
+  height: 20px;
+  width: 100%;
+}
+
+.homeLinkContainer {
+  height: 75px;
+  width: 225px;
+  margin-left: auto;
+  margin-right: auto;
+  background-image: url(ArrowHover.png);
+}
+
+/* content (home) ----------------------------------------------------------- */
+
+#solverLink {
+  background-color: #ACE6F3;
+  transition: background-color ease-in 0.4s;
+} #solverLink:hover {
+  background-color: #78D6EC;
+}
+
+#algorithmLink {
+  background-color: #A1D1FF;
+  transition: background-color ease-in 0.4s;
+} #algorithmLink:hover {
+  background-color: #69B4FF;
+}
+
+#codeLink {
+  background-color: #8FBCFF;
+  transition: background-color ease-in 0.4s;
+} #codeLink:hover {
+  background-color: #579BFF;
+}
+
+/* content (solver) --------------------------------------------------------- */
+
+#animateOnSubmit {
+  position: relative;
+}
+
+#subContainer {
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+}
+
+#sudoku {
+  background-color: #8FBCFF;
+  border: none;
+  border-radius: 10px;
+  border-spacing: 4px;
+  border-collapse: separate;
+  padding: 10px;
+}
+
+#sudoku td {
+  height: 33px;
+  width: 33px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.5em;
+}
+
+#sudoku td.number {
+  background-color: #FFFFFF;
+}
+
+#sudoku td.number-middle {
+  background-color: #F0F0F0;
+}
+
+input {
+  height: 33px;
+  width: 33px;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  padding: 0px;
+  /* 0.01 to address bug in Firefox */
+  background-color: rgba(250, 192, 144, 0.01);
+  font-family: Josefin Slab Light;
+  font-size: 1em;
+  text-align: center;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+#verticalGap {
+  width: 3px;
+}
+
+#instructions {
+  width: 200px;
+  background-color: #ACE6F3;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1.5em;
+}
+
+#submit, #reset {
+  background-color: #8FBCFF;
+  font-size: 2em;
+  transition: background-color ease-in 0.4s;
+} #submit:hover, #reset:hover {
+  background-color: #579BFF;
+}
+
+#loadingGif {
+  margin-top: 75px;
+  /* for submit animation */
+  display: none;
+  opacity: 0;
+}
+
+/* content (other) ---------------------------------------------------------- */
+
+.sectionTitle {
+  font-size: 3.5em;
+}
+
+.sectionContent1 {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  font-size: 1.5em;
+  text-align: justify;
+  background-color: rgba(172, 230, 243, 0.7);
+}
+
+.sectionContent2 {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  font-size: 1.5em;
+  text-align: justify;
+  background-color: rgba(161, 209, 255, 0.7);
+}
+
+.sectionContent3 {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  font-size: 1.5em;
+  text-align: justify;
+  background-color: rgba(143, 188, 255, 0.7);
+}
+
+#mazeContainer {
+  height: 300px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  background-color: rgba(161, 209, 255, 0.7);
+}
+
+#maze {
+  height: 300px;
+}
+
+#treeContainer {
+  height: 500px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  background-color: rgba(172, 230, 243, 0.7);
+}
+
+#tree {
+  height: 500px;
+}
+
+#HTMLContainer {
+  height: 300px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  background-color: rgba(143, 188, 255, 0.7);
+}
+
+#HTML {
+  height: 300px;
+}
+
+#CSSContainer {
+  height: 300px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  background-color: rgba(161, 209, 255, 0.7);
+}
+
+#CSS {
+  height: 300px;
+}
+
+#JavaScriptContainer {
+  height: 300px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  background-color: rgba(143, 188, 255, 0.7);
+}
+
+#JavaScript {
+  height: 300px;
+}
+
+#JavaContainer {
+  height: 300px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  border: none;
+  border-radius: 10px;
+  padding: 20px 30px;
+  background-color: rgba(161, 209, 255, 0.7);
+}
+
+#Java {
+  height: 300px;
+}

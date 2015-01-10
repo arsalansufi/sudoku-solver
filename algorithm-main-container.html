@@ -1,0 +1,100 @@
+  
+  <div class="homeLinkContainer">
+    <img class="homeLink" src="Arrow.png"/>
+  </div>
+  
+  <div class="sectionTitle">
+    exhaustive search algorithms
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent1">
+    This web app makes use of an exhaustive search algorithm. As the name suggests, these algorithms consider all possible paths to a solution, continuously trying new paths until they find a valid solution. Take an exhaustive search algorithm designed to solve a maze for example. Every time the algorithm reaches a fork, it continues along the first branch of the fork. If it hits a dead end, it backtracks to the fork and continues along the second branch of the fork. And so on. Note that, along each branch of the fork, the algorithm will likely come across additional forks, and along each branch of those forks, the algorithm will possibly come across even more forks. The algorithm will apply the same trial-and-error technique at each sub-fork.  For those of you familiar with basic computer science, you probably see how exhaustive search algorithms lend themselves to recursion.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div id="mazeContainer">
+    <img id="maze" src="Maze.gif"/>
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="sectionTitle">
+    applying an exhaustive search algorithm to Sudoku
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent3">
+    I used the term &ldquo;paths to a solution&rdquo; in my description of exhaustive search algorithms above. The term makes a lot of sense when referring to the process of solving a maze, but the term isn&rsquo;t nearly as clear when referring to the process of solving a Sudoku. What exactly are the paths? The following step-by-step description of the algorithm will hopefully clarify things a bit.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent1">
+    1) Locate the first empty square in the Sudoku.<br>
+    2) Check if the number 1 can be placed in that square. (That is, check if any other square in that row, column, or box already has a 1 in it.) If the number 1 can be placed in the square, place it. If the number 1 can&rsquo;t be placed in the square, check if the number 2 can be placed in the square, and if the number 2 can&rsquo;t be placed in the square, check if the number 3 can be placed in the square. Keep on incrementing up until a valid number is found.<br>
+    3) Move on to the next empty square and perform the same procedure applied in Step 2. If no number 1 through 9 can be placed in the square, backtrack to the last empty square and increment up to the next valid number. Then return to the current empty square and check if a number can now be placed in it. Continue backtracking to the last empty square until a number can be placed in the current empty square.<br>
+    4) Once deeper into the puzzle, backtracking can become more complicated. It&rsquo;s possible that, even after backtracking to the last empty square and considering all its valid numbers, no number can be placed in the current empty square. If this is the case, erase the number in the last empty square and backtrack to the empty square before it. If even after considering all the valid numbers for that square, a dead end still shows up, backtrack one square further. Backtrack as many levels as necessary to avert the dead end.<br>
+    5) After repeating this process of incrementing and backtracking enough times, a solution will eventually be found.<br>
+    I definitely recommend working out a few steps of the algorithm by hand on a Sudoku to get a better feel for it.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent2">
+    Consider the following similarities between the Sudoku problem and the maze problem described earlier.<br>
+    1) The different valid numbers for an empty square correspond to the forks in the maze.<br>
+    2) Squares in which no number 1 through 9 can be placed correspond to dead ends in the maze.<br>
+    3) The different valid numbers for an empty square are determined by the numbers placed in each of the prior empty squares. Likewise, the current position in the maze and the fork at that position are determined by the decisions made at each of the prior forks.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent3">
+    These similarities lead us to game trees. A game tree represents all the possible courses a game can take. Nodes represent the game&rsquo;s states, and edges represent changes to the game&rsquo;s state brought about by moves or decisions. Below is part of a simplified game tree for some hypothetical Sudoku. I&rsquo;m calling it a simplified game tree because, rather than drawing the entire Sudoku at each node, I&rsquo;ve only included the current empty square at each node. Here are some examples of facts about the hypothetical Sudoku that we can draw from the game tree.<br>
+    1) Three numbers can be placed in the first empty square: 1, 4, and 7.<br>
+    2) If the number 1 is placed in the first empty square, the numbers 3 and 9 can be placed in the second empty square.<br>
+    3) If the number 7 is placed in the first empty square, and the number 2 is placed in the second empty square, the numbers 3 and 8 can be placed in the third empty square.<br>
+    4) If the number 4 is placed in the first empty square, and the number 2 is placed in the second empty square, no number 1 through 9 can be placed in the third empty square. In other words, a dead end will be hit.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div id="treeContainer">
+    <img id="tree" src="Tree.png"/>
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent2">
+    We can now provide another definition for the Sudoku-solving algorithm. The algorithm involves a traversal of the Sudoku&rsquo;s game tree, namely a left-first traversal if the tree is drawn as shown above with children elements ordered smallest to largest from left to right. Every time a dead-end is hit, the algorithm is forced to move to the right and up a level. A final note for the computer-science-inclined, just as list-like structures are associated with iterative functions, tree-like structures are associated with recursive functions, again bringing us back to the fact that exhaustive search algorithms lend themselves to recursion.
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="sectionTitle">
+    the algorithm&rsquo;s pros and cons
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent3">
+    The primary pro of this Sudoku-solving algorithm is the fact that it can solve any Sudoku (assuming that the Sudoku is valid). The primary con of the algorithm and exhaustive search algorithms in general is their inefficiency. Consider a Sudoku in which the first empty square has nine valid numbers. In other words, any number 1 through 9 can be placed in the first empty square. However, only the number 9 prevents any dead ends from showing up later on in the puzzle. Returning to the notion of the game tree, the algorithm will have to traverse almost the entire tree before finding the solution because the algorithm increments up from 1 to 9. In addition, because the first level of the tree has nine nodes, the tree will be very large. In a case like this, the algorithm can be very slow.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent1">
+    Of course, by slow I mean slow relative to other possible algorithms. When run on my PC, the algorithm coded in Java consistently solves Sudokus in under a second. Accordingly, for relatively simple games like Sudoku, exhaustive search algorithms are a very viable option. For more complex games however, computation times can become much longer, and other algorithms or optimized versions of exhaustive search algorithms should be considered. Regarding optimized exhaustive search algorithms, various optimization techniques exist. For example, rather than beginning the algorithm with the first empty square in the puzzle, the algorithm could locate an empty square with as few valid numbers as possible and begin the algorithm there. Again returning to the notion of the game tree, this would minimize the number of nodes in the tree&rsquo;s first level, thus minimizing the overall size of the tree and the amount of traversal required.
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="homeLinkContainer">
+    <img class="homeLink" src="Arrow.png"/>
+  </div>
+  
+  <div class="horizontalGapLarge"></div>

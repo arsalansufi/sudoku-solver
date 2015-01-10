@@ -1,0 +1,118 @@
+  
+  <div class="homeLinkContainer">
+    <img class="homeLink" src="Arrow.png"/>
+  </div>
+  
+  <div class="sectionTitle">
+    introduction
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent1">
+    This project all started with an assignment in my introductory programming class that had us program a simple Sudoku solver. The program took a text file as an input, read in the Sudoku from the text file, solved the Sudoku if it could, and printed the result to the console. The algorithm that the program used was also very simple and only able to solve a small subset of Sudokus. Over the summer, in an effort to learn some web development, I decided to take this program, improve the algorithm, and create an interactive Sudoku-solving web app. In the next few sections, I&rsquo;ve descried the different pieces of code behind the web app.
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="sectionTitle">
+    the HTML
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent2">
+    The HTML contains all of the raw content displayed in the web app&mdash;the text, the buttons, the images, the forms. Elaborating on the form, unlike the program that I wrote for my class, which read in the Sudoku from a text file, the web app reads in the Sudoku from an HTML form. All of the input boxes on the solver page are part of this form. The HTML also contains links to the external CSS and JavaScript files.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div id="HTMLContainer">
+    <img id="HTML" src="HTML.jpg"/>
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="sectionTitle">
+    the CSS
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent1">
+    Long story short, the CSS makes things look pretty. The HTML document contains elements, several of which have IDs and classes. The CSS contains the formatting instructions for each ID and class. In addition, the CSS and HTML together define the positioning of elements and thus the layout of the page. The CSS is also responsible for certain simple animations, namely buttons changing color when hovered over.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div id="CSSContainer">
+    <img id="CSS" src="CSS.jpg"/>
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="sectionTitle">
+    the JavaScript
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent3">
+    The JavaScript does a lot. It&rsquo;s responsible for the major animations, including the fade-in fade-out transition every time a link is clicked and the animation of the Sudoku when it&rsquo;s submitted. It also facilitates the process of sending the HTML form to the server for solving. (Note that the JavaScript itself doesn&rsquo;t do the solving. The solving is performed by a Java servlet, which I&rsquo;ll discuss later.)
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent1">
+    Something important to mention regarding the JavaScript that I&rsquo;ve written is that all of the web app&rsquo;s content is loaded dynamically via AJAX (asynchronous JavaScript and XML). You might&rsquo;ve noticed that the web address never changes, even after clicking links to different parts of the app. That&rsquo;s because the entire app resides on a single page. Normally, when a link is clicked on a website, the current page is made inactive, information is sent and received, and the entire page is refreshed with new content. (Try it out on a random website and notice the page flash.) To make the web app feel more like a desktop application and less like a website, I decided against this default action. By dynamically loading the content, only the parts of the page that need to be changed are changed. For example, the title and background aren&rsquo;t reloaded every time a link is clicked. This allows for the fade-in-fade-out transitions. I also used AJAX to submit the Sudoku for solving. Because AJAX submissions take place as background activities, the current page remains active. This allows for the submit animation.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent2">
+    A final use of JavaScript that I should mention is form validation. Try entering an invalid character into the Sudoku on the solver page (a number greater than 9 or a hash tag for example). When you attempt to submit the Sudoku, the program will highlight the invalid characters and refuse to submit until only valid characters are entered. To accomplish this, I made use of the jQuery form validation plugin. (jQuery is a library that facilitates coding in JavaScript. It&rsquo;s particularly useful for ensuring cross-browser compatibility.)
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div id="JavaScriptContainer">
+    <img id="JavaScript" src="JavaScript.jpg"/>
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="sectionTitle">
+    the Java
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent1">
+    Last but not least, there&rsquo;s the Java. (A side note, Java is completely unrelated to JavaScript. Deceiving isn&rsquo;t it?) The Java performs the actual solving. It takes the inputs from the HTML form, stores them in a two-dimensional array, carries out the exhaustive search algorithm, and generates an HTML response. This HTML response is sent back to the client and processed by the JavaScript. Unlike the JavaScript, which runs on the client&rsquo;s computer, the Java runs on a server, namely one of Google&rsquo;s servers since I&rsquo;ve used the Google App Engine to host the web app. In other words, the solving is performed by a Java servlet.
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div id="JavaContainer">
+    <img id="Java" src="Java.jpg"/>
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="sectionTitle">
+    conclusion
+  </div>
+  
+  <div class="horizontalGapSmall"></div>
+  
+  <div class="sectionContent3">
+    Of course, I&rsquo;ve just skimmed the surface of web development, and there&rsquo;s much that I&rsquo;ve yet to learn. Nonetheless, I&rsquo;ve reached an important conclusion regarding web development&mdash;projects are the best way to learn it. Think of what you want to do, visualize it in your head, and figure out how to make it happen. For me, this last step involved lots of googling and leafing through manuals in bookstores. But don&rsquo;t just stop there. Every time you accomplish a task, think of a new task. As a brief example, I didn&rsquo;t originally plan on including animation in my web app. Let your project escalate naturally. These various notions about learning web development are easily the most valuable things that I&rsquo;ve learned by pursuing this project. Huzzah for meta conclusions! (Was that meta?)
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
+  
+  <div class="homeLinkContainer">
+    <img class="homeLink" src="Arrow.png"/>
+  </div>
+  
+  <div class="horizontalGapLarge"></div>
