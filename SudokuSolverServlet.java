@@ -1,3 +1,18 @@
+// file description -----------------------------------------------------------
+
+// filename: SudokuSolverServlet.java
+//
+// author: Arsalan Sufi
+//
+// description:
+//
+// The SudokuSolverServlet class processes the information entered into the web
+// app's HTML form. It then checks if the entered Sudoku is solvable. If so, it
+// implements a backtracking algorithm to solve it and returns the solution in
+// an HTML response.
+
+// import statements ----------------------------------------------------------
+
 package sudokusolver;
 
 import java.io.IOException;
@@ -5,133 +20,180 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+// SudokuSolverServlet class --------------------------------------------------
+
 @SuppressWarnings("serial")
 public class SudokuSolverServlet extends HttpServlet {
-    
-    // redirect doPost method to doGet method
+
+    // void doPost()
+    //
+    // parameters:
+    // -- HttpServletRequest req --
+    //    The servlet request object.
+    // -- HttpServletResponse resp --
+    //    The servlet response object.
+    //
+    // This method redirects post requests to the doGet() method.
+    //
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
-    throws IOException {
+        throws IOException {
         doGet(req, resp);
     }
-    
-    // doGet method
+
+    // void doGet()
+    //
+    // parameters:
+    // -- HttpServletRequest req --
+    //    The servlet request object.
+    // -- HttpServletResponse resp --
+    //    The servlet response object.
+    //
+    // This method handles get requests and is the primary method in this
+    // class.
+    //
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
-    throws IOException {
+        throws IOException {
     
-    // store sudoku as array obtaining input from html form
-    int[][] sudoku = new int[9][9];
-    for (int row = 0; row < 9; row++) {
-        for (int column = 0; column < 9; column++) {
-        String inputBox = "n" + ((column + 1) + row * 9);
-        if (req.getParameter(inputBox).equals("") ||
-            req.getParameter(inputBox).equals(null)) sudoku[row][column] = 0;
-        else sudoku[row][column] = Integer.parseInt(req.getParameter(inputBox));
-        }
-    }
-    
-    // solve sudoku if valid
-    String prompt = "Huzzah!<br>Success!<br>I solved it!<br>Try another?<br><br>";
-    if (isValidSudoku(sudoku)) {
-        
-        // store sudoku's initial condition in separate array
-        int[][] sudokuInitial = new int[9][9];
+        // Store sudoku as 2D array obtaining input from HTML form.
+        int[][] sudoku = new int[9][9];
         for (int row = 0; row < 9; row++) {
-        for (int column = 0; column < 9; column++) {
-            sudokuInitial[row][column] = sudoku[row][column];
-        }
-        }
-        
-        // find first blank square
-        int rowMemory = 0;
-        int columnMemory = 0;
-        outerLoop:
-        for (int row = 0; row < 9; row++) {
-        for (int column = 0; column < 9; column++) {
-            if (sudoku[row][column] == 0) {
-            rowMemory = row;
-            columnMemory = column;
-            break outerLoop;
+            for (int column = 0; column < 9; column++) {
+                String inputBox = "n" + ((column + 1) + row * 9);
+                if (   req.getParameter(inputBox).equals("")
+                    || req.getParameter(inputBox).equals(null)) {
+                    sudoku[row][column] = 0;
+                } else {
+                    sudoku[row][column] = Integer.parseInt(
+                        req.getParameter(inputBox));
+                }
             }
         }
-        }
+
+        // Set default prompt.
+        String prompt = "Huzzah!<br>Success!<br>I solved it!<br>Try another?" +
+                        "<br><br>";
         
-        solve(sudoku, sudokuInitial, rowMemory, columnMemory);
+        // Solve sudoku if valid.
+        if (isValidSudoku(sudoku)) {
+        
+            // Store sudoku's initial state in separate array.
+            int[][] sudokuInitial = new int[9][9];
+            for (int row = 0; row < 9; row++) {
+                for (int column = 0; column < 9; column++) {
+                    sudokuInitial[row][column] = sudoku[row][column];
+                }
+            }
+        
+            // Find first blank square.
+            int rowMemory = 0;
+            int columnMemory = 0;
+            outerLoop:
+            for (int row = 0; row < 9; row++) {
+                for (int column = 0; column < 9; column++) {
+                    if (sudoku[row][column] == 0) {
+                        rowMemory = row;
+                        columnMemory = column;
+                        break outerLoop;
+                    }
+                }
+            }
+        
+            solve(sudoku, sudokuInitial, rowMemory, columnMemory);
     
-    // don't attempt to solve sudoku if invalid and adjust prompt accordingly
-    } else {
-        prompt = "Sorry... I<br>couldn&rsquo;t solve<br>this one. Try<br>another?<br><br>";
+        // Don't solve sudoku if invalid and adjust prompt accordingly.
+        } else {
+            prompt = "Sorry... I<br>couldn&rsquo;t solve<br>this one. Try" +
+                     "<br>another?<br><br>";
+        }
+    
+        // Delay procession of program to allow time for JavaScript animation.
+        long start = System.currentTimeMillis();
+        long end = start + 3000;
+        while (System.currentTimeMillis() < end) ;
+
+        printSolutionPage(resp, sudoku, prompt);
     }
     
-    // delay procession of program to allow time for javascript animation
-    long start = System.currentTimeMillis();
-    long end = start + 3000;
-    int dummyVariable = 0;
-    while (System.currentTimeMillis() < end) {
-        dummyVariable++;
-    }
-    
-    printSolutionPage(resp, sudoku, prompt);
-    }
-    
-    // method used by doGet to determine whether sudoku is valid
+    // boolean isValidSudoku()
+    //
+    // parameters:
+    // -- int[][] sudoku --
+    //    The sudoku puzzle in consideration stored as a 2D array.
+    //
+    // This method checks if {sudoku} is solvable.
+    //
     public static boolean isValidSudoku(int[][] sudoku) {
-    int numToCheck = 0;
-    for (int row = 0; row < 9; row++) {
-        for (int column = 0; column < 9; column++) {
-        if (sudoku[row][column] != 0) {
-            numToCheck = sudoku[row][column];
-            sudoku[row][column] = 0;
-            if (!isPossible(sudoku, row, column, numToCheck)) {
-            sudoku[row][column] = numToCheck;
-            return false;
-            } else {
-            sudoku[row][column] = numToCheck;
+        int numToCheck = 0;
+        for (int row = 0; row < 9; row++) {
+            for (int column = 0; column < 9; column++) {
+                if (sudoku[row][column] != 0) {
+                    numToCheck = sudoku[row][column];
+                    sudoku[row][column] = 0;
+                    if (!isPossible(sudoku, row, column, numToCheck)) {
+                        sudoku[row][column] = numToCheck;
+                        return false;
+                    } else {
+                        sudoku[row][column] = numToCheck;
+                    }
+                }
             }
         }
-        }
-    }
-    return true;
+        return true;
     }
     
-    // method for solving sudoku
+    // void solve()
+    //
+    // parameters:
+    // -- int[][] sudoku --
+    //    The sudoku puzzle in consideration stored as a 2D array.
+    // -- int[][] sudokuInitial --
+    //    The initial state of the sudoku puzzle stored as a 2D array.
+    // -- int row --
+    //    The row number of the first blank square in the puzzle.
+    // -- int column --
+    //    The column number of the first blank square in the puzzle.
+    //
+    // This method solves {sudoku}. It simulates a tail-recursive backtracking
+    // algorithm using a while loop.
+    //
     public static void solve(int[][] sudoku, int[][] sudokuInitial,
                              int row, int column) {
     
-    // loop until sudoku is solved
-    while (row != 9) {
-        
-        // place valid value other than current value in square if possible
-        int initialValue = sudoku[row][column];
-        for (int numToCheck = initialValue + 1; numToCheck <= 9; numToCheck++) {
-        if (isPossible(sudoku, row, column, numToCheck)) {
-            sudoku[row][column] = numToCheck;
-            break;
-        }
-        }
-        
-        // backtrack if no other valid value exists
-        if (sudoku[row][column] == initialValue) {
-        sudoku[row][column] = 0;
-        do {
-            if (column != 0) column--;
-            else {
-            row--;
-            column = 8;
+        // Loop until {sudoku} is solved.
+        while (row != 9) {
+            
+            // Place value other than current value in square if possible.
+            int initialValue = sudoku[row][column];
+            for (int numToCheck = initialValue + 1; numToCheck <= 9; numToCheck++) {
+                if (isPossible(sudoku, row, column, numToCheck)) {
+                    sudoku[row][column] = numToCheck;
+                    break;
+                }
             }
-        } while (sudokuInitial[row][column] != 0);
-        
-        // move on to next empty square if valid value does exist
-        } else {
-        do {
-            if (column != 8) column++;
-            else {
-            row++;
-            column = 0;
+            
+            // backtrack if no other valid value exists
+            if (sudoku[row][column] == initialValue) {
+            sudoku[row][column] = 0;
+            do {
+                if (column != 0) column--;
+                else {
+                row--;
+                column = 8;
+                }
+            } while (sudokuInitial[row][column] != 0);
+            
+            // move on to next empty square if valid value does exist
+            } else {
+            do {
+                if (column != 8) column++;
+                else {
+                row++;
+                column = 0;
+                }
+                if (row == 9) break;
+            } while (sudokuInitial[row][column] != 0);
             }
-            if (row == 9) break;
-        } while (sudokuInitial[row][column] != 0);
         }
-    }
     }
     
     // method used by solve and isValidSudoku to determine whether certain number
