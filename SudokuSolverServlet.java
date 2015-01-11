@@ -8,8 +8,8 @@
 //
 // The SudokuSolverServlet class processes the information entered into the web
 // app's HTML form. It then checks if the entered Sudoku is solvable. If so, it
-// implements a backtracking algorithm to solve it and returns the solution in
-// an HTML response.
+// implements a backtracking algorithm to solve it and sends the solution in an
+// HTML response.
 
 // import statements ----------------------------------------------------------
 
@@ -84,7 +84,7 @@ public class SudokuSolverServlet extends HttpServlet {
         long end = start + 3000;
         while (System.currentTimeMillis() < end) ;
 
-        returnSolution(resp, sudoku, prompt);
+        sendResponse(resp, sudoku, prompt);
     }
 
     // public void doPost()
@@ -195,24 +195,25 @@ public class SudokuSolverServlet extends HttpServlet {
         }
     }
 
-    // public static void returnSolution()
+    // public static void sendResponse()
     //
     // parameters:
     // -- HttpServletResponse resp --
     //    The servet response object.
     // -- int[][] sudoku --
-    //    The solved Sudoku stored in a 2D array.
+    //    The solved Sudoku stored in a 2D array. If the Sudoku wasn't
+    //    solvable, this variable contains the initial Sudoku.
     // -- String prompt --
     //    The prompt for the user. Varies depending on whether or not the
     //    entered Sudoku was solvable.
     //
-    // This method returns the solution (if found) and associated prompt in an
+    // This method sends the solution (if found) and associated prompt in an
     // HTML response.
     //
     // TODO: Use the repetition in the response to clean this method up.
     //
-    public static void returnSolution(HttpServletResponse resp,
-                                      int[][] sudoku, String prompt)
+    public static void sendResponse(HttpServletResponse resp,
+                                    int[][] sudoku, String prompt)
         throws IOException {
         resp.setContentType("text/html");
         resp.getWriter().print(
@@ -346,7 +347,7 @@ public class SudokuSolverServlet extends HttpServlet {
 
     // low-level helper methods -----------------------------------------------
 
-    // boolean isPossible()
+    // public static boolean isPossible()
     //
     // parameters:
     // -- int[][] sudoku --
@@ -389,10 +390,23 @@ public class SudokuSolverServlet extends HttpServlet {
         return memory;
     }
 
-    // method used by printSolutionPage to replace zeros in sudoku array with
-    // blank squares
+    // public static String valueInTd()
+    //
+    // parameters:
+    // -- int[][] sudoku --
+    //    The sudoku puzzle in consideration stored as a 2D array.
+    // -- int row --
+    //    The row number of the square in consideration.
+    // -- int column --
+    //    The column number of the square in consideration.
+    //
+    // This method replaces the zeros in {sudoku} with blank squares.
+    //
     public static String valueInTd(int[][] sudoku, int row, int column) {
-    if (sudoku[row][column] == 0) return "";
-    else return "" + sudoku[row][column];
+        if (sudoku[row][column] == 0) {
+            return "";
+        } else {
+            return "" + sudoku[row][column];
+        }
     }
 }
