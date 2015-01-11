@@ -25,22 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class SudokuSolverServlet extends HttpServlet {
 
-    // void doPost()
-    //
-    // parameters:
-    // -- HttpServletRequest req --
-    //    The servlet request object.
-    // -- HttpServletResponse resp --
-    //    The servlet response object.
-    //
-    // This method redirects post requests to the doGet() method.
-    //
-    public void doPost(HttpServletRequest req, HttpServletResponse resp)
-        throws IOException {
-        doGet(req, resp);
-    }
+    // doGet() and doPost() methods -------------------------------------------
 
-    // void doGet()
+    // public void doGet()
     //
     // parameters:
     // -- HttpServletRequest req --
@@ -54,7 +41,7 @@ public class SudokuSolverServlet extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
         throws IOException {
     
-        // Store sudoku as 2D array obtaining input from HTML form.
+        // Store Sudoku as 2D array obtaining input from HTML form.
         int[][] sudoku = new int[9][9];
         for (int row = 0; row < 9; row++) {
             for (int column = 0; column < 9; column++) {
@@ -73,34 +60,20 @@ public class SudokuSolverServlet extends HttpServlet {
         String prompt = "Huzzah!<br>Success!<br>I solved it!<br>Try another?" +
                         "<br><br>";
         
-        // Solve sudoku if valid.
+        // Solve Sudoku if valid.
         if (isValidSudoku(sudoku)) {
         
-            // Store sudoku's initial state in separate array.
+            // Store Sudoku's initial state in separate array.
             int[][] sudokuInitial = new int[9][9];
             for (int row = 0; row < 9; row++) {
                 for (int column = 0; column < 9; column++) {
                     sudokuInitial[row][column] = sudoku[row][column];
                 }
             }
-        
-            // Find first blank square.
-            int rowMemory = 0;
-            int columnMemory = 0;
-            outerLoop:
-            for (int row = 0; row < 9; row++) {
-                for (int column = 0; column < 9; column++) {
-                    if (sudoku[row][column] == 0) {
-                        rowMemory = row;
-                        columnMemory = column;
-                        break outerLoop;
-                    }
-                }
-            }
-        
-            solve(sudoku, sudokuInitial, rowMemory, columnMemory);
+
+            solve(sudoku, sudokuInitial);
     
-        // Don't solve sudoku if invalid and adjust prompt accordingly.
+        // Don't solve Sudoku if invalid and adjust prompt accordingly.
         } else {
             prompt = "Sorry... I<br>couldn&rsquo;t solve<br>this one. Try" +
                      "<br>another?<br><br>";
@@ -111,14 +84,31 @@ public class SudokuSolverServlet extends HttpServlet {
         long end = start + 3000;
         while (System.currentTimeMillis() < end) ;
 
-        printSolutionPage(resp, sudoku, prompt);
+        returnSolution(resp, sudoku, prompt);
     }
-    
-    // boolean isValidSudoku()
+
+    // public void doPost()
+    //
+    // parameters:
+    // -- HttpServletRequest req --
+    //    The servlet request object.
+    // -- HttpServletResponse resp --
+    //    The servlet response object.
+    //
+    // This method redirects post requests to the doGet() method.
+    //
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
+        throws IOException {
+        doGet(req, resp);
+    }
+
+    // high-level methods -----------------------------------------------------
+
+    // public static boolean isValidSudoku()
     //
     // parameters:
     // -- int[][] sudoku --
-    //    The sudoku puzzle in consideration stored as a 2D array.
+    //    The Sudoku puzzle in consideration stored as a 2D array.
     //
     // This method checks if {sudoku} is solvable.
     //
@@ -141,229 +131,264 @@ public class SudokuSolverServlet extends HttpServlet {
         return true;
     }
     
-    // void solve()
+    // public static void solve()
     //
     // parameters:
     // -- int[][] sudoku --
-    //    The sudoku puzzle in consideration stored as a 2D array.
+    //    The Sudoku puzzle in consideration stored as a 2D array.
     // -- int[][] sudokuInitial --
-    //    The initial state of the sudoku puzzle stored as a 2D array.
-    // -- int row --
-    //    The row number of the first blank square in the puzzle.
-    // -- int column --
-    //    The column number of the first blank square in the puzzle.
+    //    The initial state of the Sudoku puzzle stored as a 2D array.
     //
-    // This method solves {sudoku}. It simulates a tail-recursive backtracking
+    // This method solves {sudoku}. It implements a tail-recursive backtracking
     // algorithm using a while loop.
     //
-    public static void solve(int[][] sudoku, int[][] sudokuInitial,
-                             int row, int column) {
-    
-        // Loop until {sudoku} is solved.
+    public static void solve(int[][] sudoku, int[][] sudokuInitial) {
+
+        // Find first blank square.
+        int row = 0;
+        int column = 0;
+        outerLoop:
+        for (row = 0; row < 9; row++) {
+            for (column = 0; column < 9; column++) {
+                if (sudoku[row][column] == 0) break outerLoop;
+            }
+        }
+
+        // Loop until {sudoku} represents a solution.
         while (row != 9) {
             
             // Place value other than current value in square if possible.
             int initialValue = sudoku[row][column];
-            for (int numToCheck = initialValue + 1; numToCheck <= 9; numToCheck++) {
+            for (int numToCheck = initialValue + 1;
+                 numToCheck <= 9;
+                 numToCheck++) {
                 if (isPossible(sudoku, row, column, numToCheck)) {
                     sudoku[row][column] = numToCheck;
                     break;
                 }
             }
             
-            // backtrack if no other valid value exists
+            // Backtrack if no other value is possible.
             if (sudoku[row][column] == initialValue) {
-            sudoku[row][column] = 0;
-            do {
-                if (column != 0) column--;
-                else {
-                row--;
-                column = 8;
-                }
-            } while (sudokuInitial[row][column] != 0);
-            
-            // move on to next empty square if valid value does exist
+                sudoku[row][column] = 0;
+                do {
+                    if (column != 0) {
+                        column--;
+                    } else {
+                        row--;
+                        column = 8;
+                    }
+                } while (sudokuInitial[row][column] != 0);
+                
+            // Otherwise move on to next empty square.
             } else {
-            do {
-                if (column != 8) column++;
-                else {
-                row++;
-                column = 0;
-                }
-                if (row == 9) break;
-            } while (sudokuInitial[row][column] != 0);
+                do {
+                    if (column != 8) {
+                        column++;
+                    } else {
+                        row++;
+                        column = 0;
+                    }
+                    if (row == 9) break;
+                } while (sudokuInitial[row][column] != 0);
             }
         }
     }
-    
-    // method used by solve and isValidSudoku to determine whether certain number
-    // can be placed in certain square
+
+    // public static void returnSolution()
+    //
+    // parameters:
+    // -- HttpServletResponse resp --
+    //    The servet response object.
+    // -- int[][] sudoku --
+    //    The solved Sudoku stored in a 2D array.
+    // -- String prompt --
+    //    The prompt for the user. Varies depending on whether or not the
+    //    entered Sudoku was solvable.
+    //
+    // This method returns the solution (if found) and associated prompt in an
+    // HTML response.
+    //
+    // TODO: Use the repetition in the response to clean this method up.
+    //
+    public static void returnSolution(HttpServletResponse resp,
+                                      int[][] sudoku, String prompt)
+        throws IOException {
+        resp.setContentType("text/html");
+        resp.getWriter().print(
+            "\n" +
+            "<table id=\"subContainer\">\n" +
+            "<tr>\n" +
+            "\n" +
+            "  <td>\n" +
+            "  <table id=\"sudoku\">\n" +
+            "    <tr>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 0, 0) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 0, 1) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 0, 2) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 0, 3) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 0, 4) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 0, 5) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 0, 6) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 0, 7) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 0, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 1, 0) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 1, 1) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 1, 2) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 1, 3) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 1, 4) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 1, 5) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 1, 6) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 1, 7) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 1, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 2, 0) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 2, 1) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 2, 2) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 2, 3) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 2 ,4) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 2, 5) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 2, 6) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 2, 7) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 2, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 0) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 1) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 2) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 3, 3) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 3, 4) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 3, 5) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 6) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 7) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 0) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 1) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 2) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 4, 3) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 4, 4) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 4, 5) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 6) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 7) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 0) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 1) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 2) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 5, 3) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 5, 4) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 5, 5) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 6) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 7) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 6, 0) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 6, 1) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 6, 2) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 6, 3) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 6, 4) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 6, 5) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 6, 6) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 6, 7) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 6, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 7, 0) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 7, 1) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 7, 2) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 7, 3) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 7, 4) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 7, 5) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 7, 6) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 7, 7) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 7, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "    <tr>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 8, 0) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 8, 1) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 8, 2) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 8, 3) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 8, 4) + "</td>\n" +
+            "      <td class=\"number-middle\">" + valueInTd(sudoku, 8, 5) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 8, 6) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 8, 7) + "</td>\n" +
+            "      <td class=\"number\">" + valueInTd(sudoku, 8, 8) + "</td>\n" +
+            "    </tr>\n" +
+            "  </table>\n" +
+            "  </td>\n" +
+            "\n" +
+            "  <td id=\"verticalGap\"></td>\n" +
+            "\n" +
+            "  <td id=\"instructions\">\n" +
+            "    " + prompt + "\n" +
+            "    <button id=\"reset\">Reset</button>\n" +
+            "  </td>\n" +
+            "\n" +
+            "</tr>\n" +
+            "</table>\n" +
+            "\n" +
+            "<div class=\"horizontalGapLarge\"></div>\n" +
+            "\n" +
+            "<div class=\"homeLinkContainer\">\n" +
+            "  <img class=\"homeLink\" src=\"Arrow.png\"/>\n" +
+            "</div>\n" +
+            "\n" +
+            "<div class=\"horizontalGapLarge\"></div>\n" +
+            "\n");
+    }
+
+    // low-level helper methods -----------------------------------------------
+
+    // boolean isPossible()
+    //
+    // parameters:
+    // -- int[][] sudoku --
+    //    The sudoku puzzle in consideration stored as a 2D array.
+    // -- int row --
+    //    The row number of the square in consideration.
+    // -- int column --
+    //    The column number of the square in consideration.
+    // -- int numToCheck --
+    //    The number to check.
+    //
+    // This method determines whether {numToCheck} can be placed in the square
+    // designated by {row} and {column}. The method is used by isValidSudoku()
+    // and solve().
+    //
     public static boolean isPossible(int[][] sudoku,
                                      int row, int column,
                                      int numToCheck) {
     
-    // default value
-    boolean memory = true;
-    
-    // check if number already exists in row
-    for (int i = 0; i < 9; i++) {
-        if (sudoku[row][i] == numToCheck) {
-        memory = false;
+        // Set default value.
+        boolean memory = true;
+
+        // Check if {numToCheck} already exists in row.
+        for (int i = 0; i < 9; i++) {
+            if (sudoku[row][i] == numToCheck) memory = false;
         }
-    }
-    
-    // check if number already exists in column
-    for (int i = 0; i < 9; i++) {
-        if (sudoku[i][column] == numToCheck) {
-        memory = false;
+
+        // Check if {numToCheck} already exists in column.
+        for (int i = 0; i < 9; i++) {
+            if (sudoku[i][column] == numToCheck) memory = false;
         }
-    }
-    
-    // check if number already exists in box
-    for (int i = (row / 3) * 3; i < (row / 3) * 3 + 3; i++) {
-        for (int j = (column / 3) * 3; j < (column / 3) * 3 + 3; j++) {
-        if (sudoku[i][j] == numToCheck) {
-            memory = false;
+
+        // Check if number already exists in 3-by-3 box.
+        for (int i = (row / 3) * 3; i < (row / 3) * 3 + 3; i++) {
+            for (int j = (column / 3) * 3; j < (column / 3) * 3 + 3; j++) {
+                if (sudoku[i][j] == numToCheck) memory = false;
+            }
         }
-        }
+
+        return memory;
     }
-    
-    return memory;
-    }
-    
-    // method for printing solution page
-    public static void printSolutionPage(HttpServletResponse resp,
-                                         int[][] sudoku,
-                                         String prompt) throws IOException {
-    resp.setContentType("text/html");
-    resp.getWriter().print("\n" +
-                             "<table id=\"subContainer\">\n" +
-                             "<tr>\n" +
-                             "\n" +
-                             "  <td>\n" +
-                             "  <table id=\"sudoku\">\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 0, 0) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 0, 1) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 0, 2) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 0, 3) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 0, 4) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 0, 5) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 0, 6) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 0, 7) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 0, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 1, 0) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 1, 1) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 1, 2) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 1, 3) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 1, 4) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 1, 5) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 1, 6) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 1, 7) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 1, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 2, 0) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 2, 1) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 2, 2) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 2, 3) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 2 ,4) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 2, 5) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 2, 6) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 2, 7) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 2, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 0) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 1) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 2) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 3, 3) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 3, 4) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 3, 5) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 6) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 7) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 3, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 0) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 1) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 2) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 4, 3) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 4, 4) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 4, 5) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 6) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 7) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 4, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 0) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 1) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 2) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 5, 3) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 5, 4) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 5, 5) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 6) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 7) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 5, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 6, 0) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 6, 1) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 6, 2) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 6, 3) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 6, 4) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 6, 5) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 6, 6) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 6, 7) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 6, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 7, 0) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 7, 1) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 7, 2) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 7, 3) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 7, 4) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 7, 5) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 7, 6) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 7, 7) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 7, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "    <tr>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 8, 0) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 8, 1) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 8, 2) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 8, 3) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 8, 4) + "</td>\n" +
-                             "      <td class=\"number-middle\">" + valueInTd(sudoku, 8, 5) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 8, 6) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 8, 7) + "</td>\n" +
-                             "      <td class=\"number\">" + valueInTd(sudoku, 8, 8) + "</td>\n" +
-                             "    </tr>\n" +
-                             "  </table>\n" +
-                             "  </td>\n" +
-                             "\n" +
-                             "  <td id=\"verticalGap\"></td>\n" +
-                             "\n" +
-                             "  <td id=\"instructions\">\n" +
-                             "    " + prompt + "\n" +
-                             "    <button id=\"reset\">Reset</button>\n" +
-                             "  </td>\n" +
-                             "\n" +
-                             "</tr>\n" +
-                             "</table>\n" +
-                             "\n" +
-                             "<div class=\"horizontalGapLarge\"></div>\n" +
-                             "\n" +
-                             "<div class=\"homeLinkContainer\">\n" +
-                             "  <img class=\"homeLink\" src=\"Arrow.png\"/>\n" +
-                             "</div>\n" +
-                             "\n" +
-                             "<div class=\"horizontalGapLarge\"></div>\n" +
-                             "\n");
-    }
-    
+
     // method used by printSolutionPage to replace zeros in sudoku array with
     // blank squares
     public static String valueInTd(int[][] sudoku, int row, int column) {
