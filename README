@@ -1,0 +1,17 @@
+This project all started with an assignment in my introductory programming
+class that had us program a simple Sudoku solver. The program took a text file
+as an input, read in the Sudoku from the text file, solved the Sudoku if it
+could, and printed the result to the console. The algorithm that the program
+used was also very simple and only able to solve a small subset of Sudokus.
+Over my freshman summer, in an effort to learn some web development, I decided
+to take this program, improve the algorithm, and create an interactive
+Sudoku-solving web app.
+
+See the actual solver at arsalansudokusolver.appspot.com for the web app and
+additional details about the algorithm and the code!
+
+-- Update (1/11/2015) --
+
+I'm revisiting this code for the first time in over a year and a half! I'm
+hoping to clean things up, brush up on my Java, and better understand the
+Google App Engine deployment process.
